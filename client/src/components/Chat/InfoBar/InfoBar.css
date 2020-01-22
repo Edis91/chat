@@ -1,0 +1,12 @@
+.infoBar {
+    display: grid;
+    grid-template-columns: 20px 1fr 20px;
+}
+ 
+.room-name {
+  text-align: center;
+}
+
+.onlineIcon {
+  padding-left: 5px;
+}
