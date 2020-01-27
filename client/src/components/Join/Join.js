@@ -1,7 +1,21 @@
 import React,{useState} from 'react';
 import {Link} from 'react-router-dom';
+import axios from 'axios'
 
 import "./Join.css";
+
+const URL = "http://localhost:5000";
+// const URL = "herokuapp///"
+
+function registerUser(event){
+    event.preventDefault();
+    axios.post(URL+"/user", {
+        email:"admin@gmail.com",
+        password: "admin"
+    })
+    .then(results => console.log(results))
+    .catch(e => console.log(e))
+}
 
 const Join = () => {
     const [name, setName] = useState('');
@@ -16,6 +30,7 @@ const Join = () => {
                 <Link onClick={event => (!name || !room) ? event.preventDefault() : null} to={`/chat?name=${name}&room=${room}`}>
                     <button className="button mt-20" type="submit"> Sign in</button>
                 </Link>
+                <button onClick={(event)=> registerUser(event)}> Register </button>
             </div>
         </div>
     )

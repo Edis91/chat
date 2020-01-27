@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import './UsersInRoom.css';
+import { GlobalContext } from '../../GlobalContext';
 
-const UsersInRoom = ({users, name, startGame}) => {
+const UsersInRoom = ({users}) => {
+
+    const {name, startGame} = useContext(GlobalContext)
 
     return (
         <div className="usersInRoom">
@@ -13,7 +16,7 @@ const UsersInRoom = ({users, name, startGame}) => {
                     </div>
                 )       
             })}
-            {true && 
+            {users && name && users[0] && //{&& users[0].name === name} &&
                 <button onClick={()=> startGame()} className="start"> Start Game</button>
             }
         </div>

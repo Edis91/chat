@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, } from 'react-router-dom';
+import {Global} from './GlobalContext';
 
 import './App.css';
 
@@ -8,8 +9,10 @@ import Chat from './Chat/Chat';
 
 const App = () => (
     <Router>
-        <Route path="/" exact component={Join}/>
-        <Route path="/chat" component={Chat}/>
+        <Global>
+            <Route path="/" exact component={Join}/>
+            <Route path="/chat" component={Chat}/>
+        </Global>
     </Router>
 )
 

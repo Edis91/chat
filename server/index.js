@@ -2,6 +2,12 @@ const express = require("express");
 const socketio =require("socket.io");
 const http = require("http");
 
+// Creating all tables needed
+const {createAllTables} = require("./createTables")
+createAllTables();
+
+require("dotenv").config();
+
 //Importing functions from users
 const {addUser, removeUser, getUser, getUsersInRoom} = require('./users');
 
@@ -13,17 +19,27 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
+// accept headers and cors
+app.use(express.json({limit:"10mb", extended:true}))
+app.use((req, res, callback)=> {
+    res.header("Access-Control-Allow-Origin", "http://localhost:3000")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    
+    console.log(req.body)
+    //triggers .the, (results => ) in frontEnd
+    callback();
+})
+
 app.use(router);
 
 io.on("connection", (socket)=>{
-    socket.on("join", ({name, room}, callback)=>{
+    // Z - Trying to join room with a name
+    socket.on("join", ({name, room})=>{
        
         // error returned if username is taken, otherwise user is returned
-        const {error, user} = addUser({id: socket.id, name, room});
+        const user = addUser({id: socket.id, name, room});
 
-        if(error) { return callback(error)};
-
-        //If no error, we join the room
+        //join room with user so that user
         socket.join(user.room)
 
         //Send message to server that user joined a room
@@ -34,43 +50,50 @@ io.on("connection", (socket)=>{
         
         // X-  when someone joins, send all users of that room to that room
         io.to(user.room).emit("get users", getUsersInRoom(user.room))
-
         console.log("user ' " + name + "  ' " + " has joined ' " + room + " ' ")
-        console.log("People in this room are: ")
+        console.log("People in this room: ")
         console.log(getUsersInRoom(room).map(user => user.name))
         console.log("--------")
-
-        callback();
     });
 
-    //Receiving messages from frontEnd
+    // Y - Receiving messages 
     socket.on("sendMessage",(message, callback)=>{ 
 
         //get user that sent a message
         const user = getUser(socket.id);
 
-        //send users messages to the room he is in
+        // X - Sending message to everyone in room
         io.to(user.room).emit("message", {user:user.name, text: message});
-
         callback()
-    });
-
-    // Getting all users in a room
-    socket.on("get users", () => {
-        
     });
 
     //A Starts game for everyone in one room
     socket.on("start game", (room)=> {
-        console.log("Trying to start game on backend")
+        //console.log("1-1")
         io.to(room).emit("start game");
+    })
+
+    // B - starts a round in game
+    socket.on("start round", (room)=>{
+        //console.log("2-2")
+        io.to(room).emit("start round")
+    })
+
+    //H- switch turn
+    socket.on("turn", (data)=>{
+        //console.log("3-3")
+        io.to(data.room).emit("turn", {nextPlayer:data.nextPlayer, monsterIndex:data.monsterIndex})
+    });
+
+    // add user who gave up to array
+    socket.on("give up", (data)=>{
+        console.log("4-4")
+        console.log("turn: " + data.playerIndex)
+        io.to(data.room).emit("give up", data.playerIndex)
     })
  
     socket.on("disconnect", ()=>{
         const user = removeUser(socket.id);
-
-        console.log("user ' " + user.name + " '" + " has left '" + user.room + " ' ")
-
         if(user){
             // inform the room who left
             io.to(user.room).emit("message", {user:"admin", text:`${user.name} has left`})
@@ -82,10 +105,24 @@ io.on("connection", (socket)=>{
             console.log(getUsersInRoom(user.room).map(user => user.name))
             console.log("--------")
         }
-         
+          
     });
 })
 
-
-
 server.listen(PORT, ()=> console.log(`Server has started on port ${PORT}`))
+
+// when its your turn
+// Check to see if you are only one left in this round
+// If only left, enter Dungeon with whatever equipment is left
+// If there are at least 2 pople left then give a choice. 
+// 1. Take card 2. Give up round
+// If give up round => make u unavailable to do anything until round completed
+// If take card then show that monster to you and give u another choice
+// 1. Put in dungeon  2. Remove one equipment card 
+
+//What to do in order
+//1. Fix giving up round
+//2. Make last person enter dungeon  console.log("enter dungeon")
+//3. 
+
+// x. enter dungeon functionality

@@ -1,6 +1,5 @@
 import React,{useState, useEffect} from 'react';
 import queryString from 'query-string';
-import io from 'socket.io-client';
 import './Chat.css';
 
 import InfoBar from './InfoBar/InfoBar';
@@ -8,93 +7,83 @@ import Input from './Input/Input';
 import Messages from './Messages/Messages';
 import UsersInRoom from './UsersInRoom/UsersInRoom';
 import Game from './Game/Game';
+import { useContext } from 'react';
+import { GlobalContext } from '../GlobalContext';
 
-let socket;
-
+console.log("something")
 const Chat = ({ location}) => {
-    const [name, setName] = useState('');
-    const [room, setRoom] = useState('');
+    const {socket, setName, setRoom} = useContext(GlobalContext)
     const [users, setUsers] = useState([]);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
-    const ENDPOINT = "localhost:5000";
+
 
     //Used to switch from chat to start game
-    const [start,setStart] = useState(true);
+    const [start,setStart] = useState(false);
 
     // initial load to get name, room
     useEffect(()=>{
         const {name, room} = queryString.parse(location.search)
 
-        socket = io(ENDPOINT);
-
         setName(name);
         setRoom(room);
 
-        //Trying to join room with a name
-        socket.emit("join", {name, room}, (error)=>{
-            if(error){
-                alert(error)
-            }
-        });
+        // Z - Trying to join room with a name
+        socket.emit("join", {name, room});
 
-    },[ENDPOINT, location.search])
+    },[])
 
     //Listening 
     useEffect(() => {
+        // X - waiting for message
         socket.on("message", (message)=> {
             setMessages([...messages, message])
         });
 
         // X - when someone joins, we set that user to everyone
         socket.on("get users", (users)=>{
-            setUsers(users);
+            const tempUsers = users;
+            for(let i=0; i<tempUsers.length; i++ ){
+                tempUsers[i] = {...tempUsers[i], wins:0, lives:2, index:i}                
+            }
+            setUsers(tempUsers);
         });
         
         // A - When game is started, we start it here
         socket.on("start game", ()=> {
-            console.log("started game success")
+            //console.log("1-1-1")
             setStart(true)
         })
 
-        return ()=>{
-            socket.emit("disconnect");
-
-            socket.off();
-        }
     },[messages]);
-
 
 
     //function for sending messages
     const sendMessage = (event) => {
         event.preventDefault();
         if(message){
+            // Y Sending message
             socket.emit("sendMessage", message, ()=>{ setMessage("")})
         }
     }
 
-    // A - function for starting game
-    const startGame = ()=>{
-        console.log("Trying to start game on frontEnd");
-        socket.emit("start game", room)
-    }
-
+    
     
     return(
         <div className={start ? "game" : "chat"}>
             {!start &&
                 <>
-                    <InfoBar room={room}/>
-                    <UsersInRoom name={name} users={users} startGame={startGame}/>
+                    <InfoBar/>
+                    <UsersInRoom users={users}/>
                     <Input message={message} setMessage={setMessage} sendMessage={sendMessage}/>
-                    <Messages name={name} messages={messages}/>
+                    <Messages messages={messages}/>
                 </>
             }
 
             {start &&
                 <Game users={users}/>
             }
+             
         </div>
     )
 }

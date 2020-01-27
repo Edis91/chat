@@ -1,0 +1,20 @@
+.blinking {
+    animation-name: blink;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+.givenUp {
+    opacity: 0.3;
+}
+
+@keyframes blink {
+    from {
+        box-shadow: none ;
+    }
+    to {
+        box-shadow: 0px 0px 0px 5px rgb(21, 147, 163) ;
+    }
+
+}

@@ -1,23 +1,14 @@
 const users = [];
 
 const addUser = ({id, name, room}) => {
-    name = name.trim().toLowerCase();
+    name = name.trim();
     room = room.trim().toLowerCase();
-
-    const existingUser = users.find((user) => user.room === room && user.name===name)
-
-    if(existingUser){
-        return {error:"Username is already taken"}
-    }
-
-    //Check to see that the room is not full (max 4)
-    const (getUsersInRoom(room).length)
-
+ 
     const user = {id, name, room};
 
     users.push(user);
 
-    return {user}
+    return user
 }
 
 const removeUser = (id) => {

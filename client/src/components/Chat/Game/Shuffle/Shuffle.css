@@ -1,0 +1,11 @@
+.showButton {
+    background-color: lightgreen;
+    border: 1px solid black;
+    border-radius: 3px;
+}
+
+.hideButton{
+    background-color: #333;
+    border: none;
+    color:#333;
+}

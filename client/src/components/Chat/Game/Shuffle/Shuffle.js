@@ -1,25 +1,37 @@
-import React from 'react';
+import React, {useEffect, useContext } from 'react';
 
 import './Shuffle.css';
+import { GlobalContext } from '../../../GlobalContext';
 
-const Shuffle = ({setShowHero, showHero, max}) => {
+const Shuffle = ({users, setShowHero, showHero, max, start}) => {
 
-    function changeHeroes(diff) {
-        if(diff === 0){
-            console.log(showHero)
+    const {startRound, socket, setStart} = useContext(GlobalContext);
+    
+    useEffect(()=>{
+        // B - starting round 
+        socket.on("start round", ()=> {
+            //console.log("2-2-2")
+            setStart(true)
+        });
+
+    },[]);
+
+
+    function changeHeroes(action) {
+        if(action === "chooseHero"){
+            startRound();
         }
  
-        else if(diff === 1){
+        else if(action === "next"){
             if (showHero === max){
                 setShowHero(0)
             }
-           
             else {
                 setShowHero(showHero+1)
             }
         }
 
-        else if(diff === -1){
+        else {
             if(showHero === 0){
                 setShowHero(max);
             }
@@ -32,17 +44,11 @@ const Shuffle = ({setShowHero, showHero, max}) => {
 
     return (
         <div className="shuffle">
-            <button className="shuffle-left" onClick={()=> changeHeroes(-1)}> prev </button>
-            <button className="shuffle-center" onClick={()=> changeHeroes(0) }> Choose </button>
-            <button className="shuffle-right" onClick={()=>changeHeroes(1)}> Next </button>
+            <button className={start ? "hideButton" : "showButton"} disabled={start} onClick={()=> changeHeroes("prev")}>  previous hero </button>
+            <button className={start ? "hideButton" : "showButton"} disabled={start || users.length<2} onClick={()=> changeHeroes("chooseHero") }> Choose hero </button>
+            <button className={start ? "hideButton" : "showButton"} disabled={start} onClick={()=>changeHeroes("next")}> Next hero</button>
         </div>
     )
 }
 
 export default Shuffle;
-
-// Princess Ninja Bard
-// [2, 0 , 1] => [1, 2, 0] => [0, 1, 2]
-// [0, 1, 2]
-// [1, 2, 0]
-// ads
