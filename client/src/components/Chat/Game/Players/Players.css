@@ -6,7 +6,7 @@
 }
 
 .givenUp {
-    opacity: 0.3;
+    opacity:0.4;
 }
 
 @keyframes blink {
@@ -16,5 +16,4 @@
     to {
         box-shadow: 0px 0px 0px 5px rgb(21, 147, 163) ;
     }
-
 }

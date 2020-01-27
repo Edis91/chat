@@ -17,7 +17,7 @@ const Players = ({users}) => {
         //playerMe
         if(player.name === name){
             classes += " playerMe"
-        } 
+        }
         //playerEnemy
         else{
             classes += " playerEnemy"
@@ -35,12 +35,10 @@ const Players = ({users}) => {
             {users && users.map(user=>{
                 return  <div 
                             key={user.name} 
-                            className={classNames(user)} 
+                            className={classNames(user)}
                         >
                             <h2> {user.name} </h2>
                             <p> Lives: {user.lives} Wins: {user.wins}</p>
-                            <button onClick={()=> console.log(round.givenUp)}> LOG Round </button>
-                            <button onClick={()=> console.log(user.index)}> LOG PlayerId</button>
                         </div>
             })}
         </div>

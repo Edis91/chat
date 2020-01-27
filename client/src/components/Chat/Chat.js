@@ -10,13 +10,11 @@ import Game from './Game/Game';
 import { useContext } from 'react';
 import { GlobalContext } from '../GlobalContext';
 
-console.log("something")
 const Chat = ({ location}) => {
-    const {socket, setName, setRoom} = useContext(GlobalContext)
+    const {socket, setName, setRoom, setUserId} = useContext(GlobalContext)
     const [users, setUsers] = useState([]);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
-
 
     //Used to switch from chat to start game
     const [start,setStart] = useState(false);
@@ -27,14 +25,19 @@ const Chat = ({ location}) => {
 
         setName(name);
         setRoom(room);
+        
 
         // Z - Trying to join room with a name
-        socket.emit("join", {name, room});
+        socket.emit("join", {name, room}, callBack =>{
+            setUserId(socket.id)
+            console.log(socket.id)
+        });
 
     },[])
 
     //Listening 
     useEffect(() => {
+        
         // X - waiting for message
         socket.on("message", (message)=> {
             setMessages([...messages, message])
@@ -55,6 +58,12 @@ const Chat = ({ location}) => {
             setStart(true)
         })
 
+        return () => {
+            socket.emit("disconnect")
+
+            socket.off();
+        }
+
     },[messages]);
 
 
@@ -67,7 +76,7 @@ const Chat = ({ location}) => {
         }
     }
 
-    
+
     
     return(
         <div className={start ? "game" : "chat"}>

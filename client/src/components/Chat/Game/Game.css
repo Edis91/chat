@@ -93,5 +93,22 @@
 
 .dungeon {
     display:grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 200px 1fr;
+}
+
+.dungeonMonster{
+    background-color: red;
+    border-radius: 5px;
+    grid-column:1;
+    margin:5px;
+    text-align:center;
+}
+
+.dungeonButtons{
+    grid-column: 2;
+    display:grid;
+    grid-template-rows: 3;
+    grid-gap:5px;
+    margin-left:10px;
+    margin-right:10px;
 }

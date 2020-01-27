@@ -1,12 +1,5 @@
 .choice {
-   /* background-color: lightgreen; */
-   background: repeating-linear-gradient(
-       80deg,
-       #606dbc,
-       #606dbc 20px,
-       #FFF 100%,
-       rgb(187, 77, 77) 10px
-   );
+   background-color: lightgreen;
    border-radius:10px
 }
 

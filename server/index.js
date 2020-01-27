@@ -50,10 +50,10 @@ io.on("connection", (socket)=>{
         
         // X-  when someone joins, send all users of that room to that room
         io.to(user.room).emit("get users", getUsersInRoom(user.room))
-        console.log("user ' " + name + "  ' " + " has joined ' " + room + " ' ")
-        console.log("People in this room: ")
+        console.log("People in room: " +room)
         console.log(getUsersInRoom(room).map(user => user.name))
         console.log("--------")
+        
     });
 
     // Y - Receiving messages 
@@ -75,7 +75,7 @@ io.on("connection", (socket)=>{
 
     // B - starts a round in game
     socket.on("start round", (room)=>{
-        //console.log("2-2")
+        console.log("7-7")
         io.to(room).emit("start round")
     })
 
@@ -88,8 +88,18 @@ io.on("connection", (socket)=>{
     // add user who gave up to array
     socket.on("give up", (data)=>{
         console.log("4-4")
-        console.log("turn: " + data.playerIndex)
-        io.to(data.room).emit("give up", data.playerIndex)
+        io.to(data.room).emit("give up", {nextPlayer:data.nextPlayer, playerIndex:data.playerIndex})
+    })
+
+    socket.on("set monster", data =>{
+        console.log("8-8")
+        console.log("room is: " + data.room)
+        console.log("index of card is: " + data.index)
+        io.to(data.room).emit("set monster")
+    })
+
+    socket.on("choose hero", data =>{
+        io.to(data.room).emit("choose hero", data.action)
     })
  
     socket.on("disconnect", ()=>{
@@ -101,7 +111,7 @@ io.on("connection", (socket)=>{
             // Y-  when someone leaves, update users in room
             io.to(user.room).emit("get users", getUsersInRoom(user.room))
 
-            console.log("People in this room are: ")
+            console.log("People in room: " + user.room)
             console.log(getUsersInRoom(user.room).map(user => user.name))
             console.log("--------")
         }
@@ -112,8 +122,8 @@ io.on("connection", (socket)=>{
 server.listen(PORT, ()=> console.log(`Server has started on port ${PORT}`))
 
 // when its your turn
-// Check to see if you are only one left in this round
-// If only left, enter Dungeon with whatever equipment is left
+// 
+// 
 // If there are at least 2 pople left then give a choice. 
 // 1. Take card 2. Give up round
 // If give up round => make u unavailable to do anything until round completed

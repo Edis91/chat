@@ -11,13 +11,14 @@ export const Global = props => {
     
     const [name, setName] = useState('');
     const [room, setRoom] = useState('');
+    const [userId, setUserId] = useState(-1)
 
     const {monsters} = require('./Chat/Game/AllMonsters');
 
     // Keeps track of everything in a round (turn, monsters left, monsters in dungeon, which players have not given up)
     const [round, setRound] = useState({
         turn:0, left:monsters, inDungeon:[], givenUp:[]
-    })
+    });
 
     // used for starting new round
     const [start, setStart] = useState(false);
@@ -29,18 +30,11 @@ export const Global = props => {
         socket.emit("start game", room)
     }
 
-    // B - Starting round
-    function startRound(){
-        //console.log("2")
-        socket.emit("start round", (room))
-    }
-
-
     return (
         <GlobalContext.Provider 
         value={{
-            socket,name, setName, room, setRoom, startGame, startRound,
-            round, setRound, start, setStart
+            socket,name, setName, room, setRoom, userId, setUserId,
+            startGame, round, setRound, start, setStart, monsters
         }}>
 
             {props.children}
