@@ -30,7 +30,6 @@ const Chat = ({ location}) => {
         // Z - Trying to join room with a name
         socket.emit("join", {name, room}, callBack =>{
             setUserId(socket.id)
-            console.log(socket.id)
         });
 
     },[])
@@ -38,12 +37,10 @@ const Chat = ({ location}) => {
     //Listening 
     useEffect(() => {
         
-        // X - waiting for message
         socket.on("message", (message)=> {
             setMessages([...messages, message])
         });
 
-        // X - when someone joins, we set that user to everyone
         socket.on("get users", (users)=>{
             const tempUsers = users;
             for(let i=0; i<tempUsers.length; i++ ){
@@ -52,15 +49,12 @@ const Chat = ({ location}) => {
             setUsers(tempUsers);
         });
         
-        // A - When game is started, we start it here
         socket.on("start game", ()=> {
-            //console.log("1-1-1")
             setStart(true)
         })
 
         return () => {
             socket.emit("disconnect")
-
             socket.off();
         }
 

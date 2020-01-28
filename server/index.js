@@ -36,10 +36,9 @@ io.on("connection", (socket)=>{
     // Z - Trying to join room with a name
     socket.on("join", ({name, room})=>{
        
-        // error returned if username is taken, otherwise user is returned
         const user = addUser({id: socket.id, name, room});
 
-        //join room with user so that user
+        //join room with user
         socket.join(user.room)
 
         //Send message to server that user joined a room
@@ -56,7 +55,6 @@ io.on("connection", (socket)=>{
         
     });
 
-    // Y - Receiving messages 
     socket.on("sendMessage",(message, callback)=>{ 
 
         //get user that sent a message
@@ -67,35 +65,29 @@ io.on("connection", (socket)=>{
         callback()
     });
 
-    //A Starts game for everyone in one room
     socket.on("start game", (room)=> {
-        //console.log("1-1")
         io.to(room).emit("start game");
     })
 
-    // B - starts a round in game
     socket.on("start round", (room)=>{
-        console.log("7-7")
         io.to(room).emit("start round")
     })
 
-    //H- switch turn
-    socket.on("turn", (data)=>{
-        //console.log("3-3")
-        io.to(data.room).emit("turn", {nextPlayer:data.nextPlayer, monsterIndex:data.monsterIndex})
+    socket.on("add monster", (data)=>{
+        io.to(data.room).emit("add monster", {nextPlayer:data.nextPlayer})
     });
 
-    // add user who gave up to array
     socket.on("give up", (data)=>{
-        console.log("4-4")
         io.to(data.room).emit("give up", {nextPlayer:data.nextPlayer, playerIndex:data.playerIndex})
     })
 
-    socket.on("set monster", data =>{
-        console.log("8-8")
-        console.log("room is: " + data.room)
-        console.log("index of card is: " + data.index)
-        io.to(data.room).emit("set monster")
+    socket.on("set monster", ({room, monst}) =>{
+        io.to(room).emit("set monster", monst)
+        
+    })
+
+    socket.on("discard", ({room, card, nextPlayer})=>{
+        io.to(room).emit("discard", {card, nextPlayer})
     })
 
     socket.on("choose hero", data =>{
@@ -121,18 +113,11 @@ io.on("connection", (socket)=>{
 
 server.listen(PORT, ()=> console.log(`Server has started on port ${PORT}`))
 
-// when its your turn
+//What to do 
+// If no monsters left, next player  "gives up", and so on, until 1 player left, he enters dungeon
 // 
+
 // 
-// If there are at least 2 pople left then give a choice. 
-// 1. Take card 2. Give up round
-// If give up round => make u unavailable to do anything until round completed
-// If take card then show that monster to you and give u another choice
-// 1. Put in dungeon  2. Remove one equipment card 
-
-//What to do in order
-//1. Fix giving up round
-//2. Make last person enter dungeon  console.log("enter dungeon")
-//3. 
-
-// x. enter dungeon functionality
+// Enter dungeon functionality 
+// When dungeon is over, check if there is a winner (lives left or number of wins)
+// If no one won, start new round, etc

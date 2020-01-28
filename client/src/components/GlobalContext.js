@@ -13,11 +13,12 @@ export const Global = props => {
     const [room, setRoom] = useState('');
     const [userId, setUserId] = useState(-1)
 
+
     const {monsters} = require('./Chat/Game/AllMonsters');
 
     // Keeps track of everything in a round (turn, monsters left, monsters in dungeon, which players have not given up)
     const [round, setRound] = useState({
-        turn:0, left:monsters, inDungeon:[], givenUp:[]
+        turn:0, left:monsters, inDungeon:[],currentMonster:-1 ,givenUp:[], thrownEquipment:["card2"]
     });
 
     // used for starting new round
@@ -25,8 +26,6 @@ export const Global = props => {
 
 
     const startGame = ()=>{
-        //console.log("1");
-        // G - Starting Game
         socket.emit("start game", room)
     }
 

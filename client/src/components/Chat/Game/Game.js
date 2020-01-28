@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
-import io from 'socket.io-client';
+import React, { useState, useContext } from 'react';
 
 import Title from './Title/Title';
 import Players from './Players/Players';
@@ -30,8 +29,8 @@ const Game = ({users}) => {
             <Players users={users}/>
             {start && <RoundInfo users={users}/>}
             {!start && <Shuffle users={users} start={start} max={max} showHero={showHero} setShowHero={setShowHero}/>}
-            <Hero heroes={heroes} showHero={showHero}/>
-            <Dungeon users={users}/>
+            <Hero users={users} heroes={heroes} showHero={showHero}/>
+            {start && <Dungeon users={users}/>}
         </>
     ) 
 }

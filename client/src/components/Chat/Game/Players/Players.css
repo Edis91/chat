@@ -1,3 +1,19 @@
+.player {
+    border-radius: 10px;
+    margin-left: 10px;
+    text-align: center;
+    height:90%;
+    width: 90%;
+}
+
+.playerMe{
+    background-color: lightgreen;
+}   
+
+.playerEnemy{
+    background-color: lightcoral;
+}
+
 .blinking {
     animation-name: blink;
     animation-duration: 1s;

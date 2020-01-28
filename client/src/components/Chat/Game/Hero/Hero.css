@@ -1,0 +1,27 @@
+.grid-1-2{
+    grid: row 1;
+    grid-column:2;
+}
+
+.grid-2-1{
+    grid: row 2;
+    grid-column:1;
+}
+
+.discarded {
+    background: repeating-linear-gradient(
+        45deg, 
+        rgb(63, 4, 4), 
+        black 20px,
+        black 20px, 
+        rgb(63,4,4) 40px
+    );
+}
+
+.hero-card{
+    background-color: lightseagreen;
+    width:140px;
+    border-radius: 5px;
+    border: solid 2px black;
+    text-align:center;
+}

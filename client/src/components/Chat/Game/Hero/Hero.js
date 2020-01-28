@@ -1,39 +1,56 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 
 import './Hero.css';
+import { GlobalContext } from '../../../GlobalContext';
 
-const Hero = ({heroes, showHero}) => {
+const Hero = ({users, heroes, showHero}) => {
+
+    const {room, round, socket} = useContext(GlobalContext);
+
+    const equipmentClass = (card) =>{
+        let equipClass = "hero-card"
+
+        if(card === "card1"){
+            equipClass += " grid-1-2"
+        }
+
+        if(card === "card2"){
+            equipClass += " grid-2-1"
+        }
+
+        if(round.thrownEquipment.includes(card)){
+            equipClass += " discarded"
+        }
+        return equipClass
+    }
+
+    function discardEquipment(card){
+        if(users[round.turn].id === socket.id && round.currentMonster !== -1){
+            if(round.thrownEquipment.includes(card) || card === "card1"){
+                console.log("card cannot be discarded")
+            }
+            else{
+                let nextPlayer = round.turn +1
+                socket.emit("discard", {room, card, nextPlayer})
+            }
+        }
+    }
 
     return (
         <div className="hero">
-            <div className="card card1">
-                <h5>{heroes[showHero].card1.text1}</h5>
-                <h5>{heroes[showHero].card1.text2}</h5>
-            </div>
-            <div className="card card2">
-                <h5>{heroes[showHero].card2.text1}</h5>
-                <h5>{heroes[showHero].card2.text2}</h5>
-            </div>
-            <div className="card card3">
-                <h5>{heroes[showHero].card3.text1}</h5>
-                <h5>{heroes[showHero].card3.text2}</h5>
-            </div>
-            <div className="card card4">
-                <h5>{heroes[showHero].card4.text1}</h5>
-                <h5>{heroes[showHero].card4.text2}</h5>
-            </div>
-            <div className="card card5">
-                <h5>{heroes[showHero].card5.text1}</h5>
-                <h5>{heroes[showHero].card5.text2}</h5>
-            </div>
-            <div className="card card6">
-                <h5>{heroes[showHero].card6.text1}</h5>
-                <h5>{heroes[showHero].card6.text2}</h5>
-            </div>
-            <div className="card card7">
-                <h5>{heroes[showHero].card7.text1}</h5>
-                <h5>{heroes[showHero].card7.text2}</h5>
-            </div>
+            {heroes && Object.keys(heroes[showHero]).map(card => {
+                return(
+                    <div 
+                        key={card} 
+                        className={equipmentClass(card)}
+                        onClick={()=> discardEquipment(card)}
+                    >
+                        <h5> {heroes[showHero][card].text1} </h5>
+                        <h5> {heroes[showHero][card].text2} </h5>
+                    </div>
+                )
+            })}
+
         </div>
     )
 }

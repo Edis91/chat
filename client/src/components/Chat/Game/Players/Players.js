@@ -46,20 +46,3 @@ const Players = ({users}) => {
 }
 
 export default Players;
-
-// className={user.name === name ? "player-me" : "player-enemy"}
-
-// return (
-//     <div className="players">
-//         {users && users.map(user=>{
-//             return  <div 
-//                         key={user.name} 
-//                         style={user.name === name ? styleMe : styleEnemy} 
-//                         className={"player " + users[round.turn].name === user.name ? "blinking" : ""} 
-//                     >
-//                         <h2> {user.name} </h2>
-//                         <p> Lives: {user.lives} Wins: {user.wins}</p>
-//                     </div>
-//         })}
-//     </div>
-// )
