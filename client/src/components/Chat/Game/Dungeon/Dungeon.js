@@ -1,38 +1,53 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import './Dungeon.css';
 import { GlobalContext } from '../../../GlobalContext';
 
 const Dungeon = ({users}) => {
-
     const {socket, room, round, setRound, name, start} = useContext(GlobalContext);
-
+    const [enterDungeon, setEnterDungeon] = useState(false)
+    
     useEffect(()=>{
-      
+        console.log(round.inDungeon)
+        
         // When only one player left this round, enter dungeon
         if(users.length - round.givenUp.length === 1){
-            enterDungeon()
+            setEnterDungeon(true)
         }
 
         else{
-            socket.on("add monster", (data)=>{
-                // find round.currentMonsters whose id does not mathch data.round.currentMonster
+            socket.on("add monster", ()=>{
+                // find round.currentMonsters whose id does not match currentMonster
                 let tempLeft = round.left.filter(item => item.id !== round.currentMonster.id)
 
-                let nextPlayer = findNextPlayer(data.nextPlayer)
-    
-                setRound({...round, inDungeon:[...round.inDungeon, round.currentMonster], left:tempLeft, turn:nextPlayer, currentMonster:-1})
-                
+                let nextPlayer = round.turn;
+                if(tempLeft.length !== 0){
+                    nextPlayer = findNextPlayer()
+                    setRound({...round, inDungeon:[...round.inDungeon, round.currentMonster], left:tempLeft, turn:nextPlayer, currentMonster:-1})
+                }
+                else{
+                    // Player who puts last monster card in dungeon has to enter the dungeon 
+                    let givenUp = []
+                    for(let index in users){
+                        let parsedIndex = parseInt(index)
+                        if(parsedIndex !== round.turn){
+                            givenUp.push(parsedIndex)
+                        }
+                    }
+                    console.log(givenUp)
+                    setRound({...round, inDungeon:[...round.inDungeon, round.currentMonster], left:tempLeft, turn:nextPlayer, currentMonster:-1, givenUp:givenUp})
+                }
             });
     
             //giving up
-            socket.on("give up", (data)=>{                
+            socket.on(("give up"), ()=>{               
+                console.log("giving up") 
                 // Finding nextplayer 
-                let nextPlayer = findNextPlayer(data.nextPlayer);
+                let nextPlayer = findNextPlayer();
                 
                 // adding player to users who gave up on this round and putting next player
-                setRound({...round, givenUp:[...round.givenUp, data.playerIndex], turn:nextPlayer})
-            })
+                setRound({...round, givenUp:[...round.givenUp, round.turn], turn:nextPlayer})
+            });
     
             socket.on("set monster", (monst) =>{
                 setRound({...round, currentMonster:monst})
@@ -41,8 +56,8 @@ const Dungeon = ({users}) => {
             socket.on("discard", (data) =>{
                 let tempLeft = round.left.filter(item => item.id !== round.currentMonster.id)
                 let nextPlayer = findNextPlayer(data.nextPlayer);
-                setRound({...round, currentMonster:-1,thrownEquipment:[...round.thrownEquipment, data.card], turn:nextPlayer, left:tempLeft})
-            })
+                setRound({...round, currentMonster:-1, thrownEquipment:[...round.thrownEquipment, data.card], turn:nextPlayer, left:tempLeft})
+            });
         }
 
         
@@ -53,6 +68,16 @@ const Dungeon = ({users}) => {
 
     },[round, start])
 
+    useEffect(()=>{
+        if(enterDungeon){
+            let player = users[round.turn];
+            console.log("Player entered dungeon: " + player.name)
+            console.log(player)
+            
+        }
+
+    }, [enterDungeon])
+
     function takeMonsterCard(){
         const monsterIndex = Math.floor(Math.random()*round.left.length)
         let monst = round.left[monsterIndex]
@@ -60,17 +85,15 @@ const Dungeon = ({users}) => {
     }
 
     function addToDungeon(){
-        let nextPlayer = round.turn +1
-        socket.emit("add monster", {room, nextPlayer});
+        socket.emit("add monster", room);
     }
 
     function giveUpRound(){
-        let nextPlayer = round.turn +1;
-        socket.emit("give up", {room, nextPlayer, playerIndex: round.turn})
+        socket.emit("give up", (room))
     }
 
     function findNextPlayer(next){
-        let nextPlayer = next;
+        let nextPlayer = round.turn +1;
             if(nextPlayer === users.length){
                 nextPlayer = 0;
             }
@@ -89,14 +112,11 @@ const Dungeon = ({users}) => {
             return nextPlayer
     }
 
-    function enterDungeon(){
-        console.log(users[round.turn].name +" enters Dungeon")
-    }
 
     return (
         <div className="dungeon">
             <div className="dungeonMonster">
-                {round.currentMonster !== -1 && 
+                {!enterDungeon && round.currentMonster !== -1 && 
                 <>
                     {(users[round.turn].id === socket.id) ?
                             <>  
@@ -110,6 +130,13 @@ const Dungeon = ({users}) => {
                             </>
                     }
                 </>
+                }
+                {enterDungeon && 
+                    <>
+                        <p> id: {round.currentMonster.id}  </p>
+                        <p> {round.currentMonster.name} </p>
+                        <p> strength: {round.currentMonster.strength} </p>
+                    </>
                 }
             </div>
             

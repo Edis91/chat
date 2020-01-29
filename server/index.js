@@ -73,12 +73,12 @@ io.on("connection", (socket)=>{
         io.to(room).emit("start round")
     })
 
-    socket.on("add monster", (data)=>{
-        io.to(data.room).emit("add monster", {nextPlayer:data.nextPlayer})
+    socket.on("add monster", (room)=>{
+        io.to(room).emit("add monster")
     });
 
-    socket.on("give up", (data)=>{
-        io.to(data.room).emit("give up", {nextPlayer:data.nextPlayer, playerIndex:data.playerIndex})
+    socket.on("give up", (room)=>{
+        io.to(room).emit("give up")
     })
 
     socket.on("set monster", ({room, monst}) =>{

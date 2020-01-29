@@ -18,7 +18,7 @@ export const Global = props => {
 
     // Keeps track of everything in a round (turn, monsters left, monsters in dungeon, which players have not given up)
     const [round, setRound] = useState({
-        turn:0, left:monsters, inDungeon:[],currentMonster:-1 ,givenUp:[], thrownEquipment:["card2"]
+        turn:0, left:monsters, inDungeon:[], currentMonster:-1 ,givenUp:[], thrownEquipment:["card2"]
     });
 
     // used for starting new round
