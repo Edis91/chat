@@ -71,8 +71,10 @@ const Dungeon = ({users}) => {
     useEffect(()=>{
         if(enterDungeon){
             let player = users[round.turn];
+            let monstersInDungeon = round.inDungeon;
             console.log("Player entered dungeon: " + player.name)
             console.log(player)
+            console.log(monstersInDungeon)
             
         }
 
