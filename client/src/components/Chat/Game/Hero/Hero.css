@@ -20,7 +20,7 @@
 
 .hero-card{
     background-color: lightseagreen;
-    width:140px;
+    width:100%;
     border-radius: 5px;
     border: solid 2px black;
     text-align:center;

@@ -3,18 +3,29 @@ import React, {useEffect, useContext } from 'react';
 import './Shuffle.css';
 import { GlobalContext } from '../../../GlobalContext';
 
-const Shuffle = ({users, setShowHero, showHero, max, start}) => {
+const Shuffle = ({users, setShowHero, showHero, max, start, heroes}) => {
 
-    const {socket, setStart, room} = useContext(GlobalContext);
+    const {socket, setStart, room, setRound, round, addToLog} = useContext(GlobalContext);
     
     useEffect(()=>{
-        // B - starting round 
+        // B - starting round  
         socket.on("choose hero", (action)=> {
             changeHeroes(action)
         });
-
+        
         socket.on("start round", ()=>{
+            let hp = 0;
+            
+            Object.keys(heroes[showHero]).map(card => {
+                let add = heroes[showHero][card].hp
+                if(add){
+                    hp += add
+                }
+            })
+
+            setRound({...round, hp:hp})
             setStart(true)
+            addToLog({msg:heroes[showHero].card1.text1 + " was chosen", type:"chooseHero"})
         })
 
         return ()=>{
@@ -49,9 +60,9 @@ const Shuffle = ({users, setShowHero, showHero, max, start}) => {
 
     return (
         <div className="shuffle">
-            <button className={start ? "hideButton" : "showButton"} disabled={start} onClick={()=> socket.emit("choose hero", {room, action:"prev"})}>  previous hero </button>
-            <button className={start ? "hideButton" : "showButton"} disabled={start || users.length<2} onClick={()=> socket.emit("start round", room) }> Choose hero </button>
-            <button className={start ? "hideButton" : "showButton"} disabled={start} onClick={()=>socket.emit("choose hero", {room, action:"next"})}> Next hero</button>
+            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2} onClick={()=> socket.emit("choose hero", {room, action:"prev"})}>  previous hero </button>
+            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2} onClick={()=> socket.emit("start round", room) }> Choose hero </button>
+            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2} onClick={()=>socket.emit("choose hero", {room, action:"next"})}> Next hero</button>
         </div>
     )
 }

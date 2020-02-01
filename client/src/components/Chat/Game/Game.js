@@ -6,6 +6,7 @@ import Shuffle from './Shuffle/Shuffle';
 import Hero from './Hero/Hero';
 import RoundInfo from './RoundInfo/RoundInfo';
 import Dungeon from './Dungeon/Dungeon';
+import Logger from './Logger/Logger';
 
 import './Game.css';
 import { GlobalContext } from '../../GlobalContext';
@@ -27,10 +28,11 @@ const Game = ({users}) => {
         <>
             <Title/>
             <Players users={users}/>
-            {start && <RoundInfo users={users}/>}
-            {!start && <Shuffle users={users} start={start} max={max} showHero={showHero} setShowHero={setShowHero}/>}
             <Hero users={users} heroes={heroes} showHero={showHero}/>
-            {start && <Dungeon users={users}/>}
+            <Logger/>
+            {start && <RoundInfo/>}
+            {!start && <Shuffle heroes={heroes} users={users} start={start} max={max} showHero={showHero} setShowHero={setShowHero}/>}
+            {start && <Dungeon showHero={showHero} heroes={heroes} users={users}/>}
         </>
     ) 
 }

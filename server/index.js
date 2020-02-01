@@ -93,6 +93,10 @@ io.on("connection", (socket)=>{
     socket.on("choose hero", data =>{
         io.to(data.room).emit("choose hero", data.action)
     })
+
+    socket.on("use equipment", ({room, data})=>{
+        io.to(room).emit("use equipment", data)
+    })
  
     socket.on("disconnect", ()=>{
         const user = removeUser(socket.id);
