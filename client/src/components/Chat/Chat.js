@@ -70,8 +70,6 @@ const Chat = ({ location}) => {
         }
     }
 
-
-    
     return(
         <div className={start ? "game" : "chat"}>
             {!start &&

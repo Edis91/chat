@@ -5,7 +5,7 @@ import './Title.css';
 const Title = () => {
     return (
         <div className="title">
-            <h1>Welcome to the dungeon</h1>
+            <h3>Welcome to the dungeon</h3>
         </div>
     )
 }

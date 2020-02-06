@@ -24,8 +24,8 @@ const Shuffle = ({users, setShowHero, showHero, max, start, heroes}) => {
             })
 
             setRound({...round, hp:hp})
+            addToLog({msg:heroes[showHero].card1.text1 + " was chosen", type:"choose hero"})
             setStart(true)
-            addToLog({msg:heroes[showHero].card1.text1 + " was chosen", type:"chooseHero"})
         })
 
         return ()=>{
@@ -60,9 +60,9 @@ const Shuffle = ({users, setShowHero, showHero, max, start, heroes}) => {
 
     return (
         <div className="shuffle">
-            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2} onClick={()=> socket.emit("choose hero", {room, action:"prev"})}>  previous hero </button>
-            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2} onClick={()=> socket.emit("start round", room) }> Choose hero </button>
-            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2} onClick={()=>socket.emit("choose hero", {room, action:"next"})}> Next hero</button>
+            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2 || users[round.turn].id !== socket.id} onClick={()=> socket.emit("choose hero", {room, action:"prev"})}>  previous hero </button>
+            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2 || users[round.turn].id !== socket.id} onClick={()=> socket.emit("start round", room) }> Choose hero </button>
+            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2 || users[round.turn].id !== socket.id} onClick={()=>socket.emit("choose hero", {room, action:"next"})}> Next hero</button>
         </div>
     )
 }

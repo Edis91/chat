@@ -97,6 +97,18 @@ io.on("connection", (socket)=>{
     socket.on("use equipment", ({room, data})=>{
         io.to(room).emit("use equipment", data)
     })
+
+    socket.on("attack me", (room)=>{
+        io.to(room).emit("attack me")
+    })
+
+    socket.on("reveal monster", (room)=>{
+        io.to(room).emit("reveal monster")
+    })
+
+    socket.on("choose monster", ({room, monster, card})=>{
+        io.to(room).emit("choose monster", ({monster, card}))
+    })
  
     socket.on("disconnect", ()=>{
         const user = removeUser(socket.id);

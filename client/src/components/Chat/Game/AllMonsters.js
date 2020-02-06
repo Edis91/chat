@@ -1,29 +1,31 @@
-const goblin1 = {id:0, name:"Goblin", strength: 1}
+const goblin1 = {id:0, name:"Goblin", strength: 1, src:'./icons/goblin.png'}
+													   
+const goblin2 = {id:1, name:"Goblin", strength: 1, src:'./icons/goblin.png'}
 
-const goblin2 = {id:1, name:"Goblin", strength: 1}
+const mummy1 = {id:2, name: "Mummy", strength: 2, src:'./icons/mummy.png'}
 
-const skeleton1 = {id:2, name: "Skeleton", strength: 2}
+const mummy2 = {id:3, name: "Mummy", strength: 2, src:'./icons/mummy.png'}
 
-const skeleton2 = {id:3, name: "Skeleton", strength: 2}
+const orc1 = {id:4, name: "Orc", strength: 3, src:'./icons/orc.png'}
 
-const orc1 = {id:4, name: "Orc", strength: 3}
+const orc2 = {id:5, name: "Orc", strength: 3, src:'./icons/orc.png'}
 
-const orc2 = {id:5, name: "Orc", strength: 3}
+const vampire1 = {id:6, name: "Vampire", strength: 4, src:'./icons/vampire.png'}
 
-const vampire1 = {id:6, name: "Vampire", strength: 4}
+const vampire2 = {id:7, name: "Vampire", strength: 4, src:'./icons/vampire.png'}
 
-const vampire2 = {id:7, name: "Vampire", strength: 4}
+const golem1 = {id:8, name: "Golem", strength: 5, src:'./icons/golem.png'}
 
-const golem1 = {id:8, name: "Golem", strength: 5}
+const golem2 = {id:9, name: "Golem", strength: 5, src:'./icons/golem.png'}
 
-const golem2 = {id:9, name: "Golem", strength: 5}
+const cerberus = {id:10, name: "Cerberus", strength: 6, src:'./icons/cerberus.png'}
 
-const lich = {id:10, name: "Lich", strength: 6}
+const demon = {id:11, name: "Demon", strength: 7, src:'./icons/demon.png'}
 
-const demon = {id:11, name: "Demon", strength: 7}
+const dragon = {id:12, name: "Dragon", strength: 9, src:'./icons/dragon.png'}
 
-const dragon = {id:12, name: "Dragon", strength: 9}
+const monsters = [goblin1, goblin2, mummy1, mummy2, orc1, orc2, vampire1, vampire2, golem1, golem2, cerberus, demon, dragon]
 
-const monsters = [goblin1, goblin2, skeleton1, skeleton2, orc1, orc2, vampire1, vampire2, golem1, golem2, lich, demon, dragon]
+const monsterNames =["Goblin", "Mummy", "Orc", "Vampire", "Golem", "Cerberus", "Demon", "Dragon"]
 
-module.exports = {monsters};
+module.exports = {monsters, monsterNames};

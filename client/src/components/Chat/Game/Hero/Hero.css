@@ -19,9 +19,92 @@
 }
 
 .hero-card{
-    background-color: lightseagreen;
-    width:100%;
-    border-radius: 5px;
-    border: solid 2px black;
     text-align:center;
+    display:grid;
+    grid-template-rows: 1fr 1fr;
+    font-family: 'Kalam', cursive;
+    height:auto;
+    border-radius:4px;
+}
+
+.card-top img{
+    margin-top:10%;
+    height:auto;
+    width:auto;
+}
+
+.card-bot{
+    background-color:#222;
+    display:grid;
+    grid-template-rows: 0px 1fr;
+    align-items:center;
+}
+
+/* coloring heroes */
+
+/* variables for shadows */
+:root{
+    --a: 0em;
+    --b: 0em;
+    --c: 4em;
+    --d: 0em;
+
+    --cc: 5em;
+    --dd: 5em;
+}
+
+
+.ninja{
+    transition: box-shadow 800ms;
+    box-shadow: rgb(116, 112, 91) inset var(--a) var(--b) var(--c) var(--d)
+}
+
+.ninja:hover{
+    box-shadow: rgb(116, 112, 91) inset var(--a) var(--b) var(--cc) var(--dd)
+}
+
+.bard {
+    transition: box-shadow 500ms;
+    box-shadow: rgb(230, 226, 22) inset var(--a) var(--b) var(--c) var(--d)
+}
+
+.bard:hover{
+    box-shadow: rgb(230, 226, 22) inset var(--a) var(--b) var(--cc) var(--dd)
+}
+
+.warrior{
+    transition: box-shadow 500ms;
+    box-shadow: rgb(24, 151, 224) inset var(--a) var(--b) var(--c) var(--d)
+}
+
+.warrior:hover{
+    box-shadow: rgb(24, 151, 224) inset var(--a) var(--b) var(--cc) var(--dd)
+}
+
+.mage{
+    transition: box-shadow 500ms;
+    box-shadow: rgb(145, 110, 166) inset var(--a) var(--b) var(--c) var(--d)
+}
+
+.mage:hover{
+    box-shadow: rgb(145, 110, 166) inset var(--a) var(--b) var(--cc) var(--dd)
+}
+
+
+.barbarian{
+    transition: box-shadow 500ms;
+    box-shadow: rgb(228, 149, 2) inset var(--a) var(--b) var(--c) var(--d)
+}
+
+.barbarian:hover{
+    box-shadow: rgb(228, 149, 2) inset var(--a) var(--b) var(--cc) var(--dd)
+}
+
+.rogue{
+    transition: box-shadow 500ms;
+    box-shadow: rgb(104, 221, 143) inset var(--a) var(--b) var(--c) var(--d)
+}
+
+.rogue:hover{
+    box-shadow: rgb(104, 221, 143) inset var(--a) var(--b) var(--cc) var(--dd)
 }
