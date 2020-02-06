@@ -71,6 +71,7 @@ const Hero = ({users, heroes, showHero}) => {
      
             case "after-death":
                 if(round.wait === 2){
+                    console.log("2")
                     data = afterDeath(conditions);
                 }
                 break;
@@ -86,6 +87,7 @@ const Hero = ({users, heroes, showHero}) => {
             }   
             if(data){
                 data.card = card;
+                console.log("4")
                 socket.emit("use equipment", {room, data})
             }
     }
@@ -116,7 +118,6 @@ const Hero = ({users, heroes, showHero}) => {
 
         //kill any monster
         else if(x === "any"){
-            console.log("1")
             //discard extra card
             if(conditions[2]==="discard"){
                 console.log("2")
@@ -200,6 +201,7 @@ const Hero = ({users, heroes, showHero}) => {
     function afterDeath(conditions){
         let x = conditions[1]
         if(x==="resurrect"){
+            console.log("3")
             return {action:"resurrect", discard:"one"}
         }
 

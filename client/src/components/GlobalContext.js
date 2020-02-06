@@ -25,7 +25,7 @@ export const Global = props => {
         hp:0,
         equipment:["card1","card2","card3","card4","card5","card6","card7"],
         wait:0,    
-        choose:""           // monster chosen for a card
+        choose:""           // special card or monster that can be killed by special card
     });
 
     // wait:  

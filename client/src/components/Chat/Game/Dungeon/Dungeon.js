@@ -9,16 +9,6 @@ const Dungeon = ({users, heroes, showHero}) => {
     const {socket, room, round, setRound, name, start, setStart ,addToLog} = useContext(GlobalContext);
 
     const [beforeDungeon, setBeforeDungeon] = useState(true);
-
-    // wait:  
-    // here we CANNOT use cards
-    // -1: waiting to make decision before enter dungeon  => 0
-    // -2 : waiting to discard card => 0
-    
-    // here we CAN use cards
-    // 0 : waiting to draw monster card (not showing monster)
-    // 1 : monstercard drawn (show the monster) 
-    // 2 : waiting to use after death => 0 
     
     useEffect(()=>{
         
@@ -54,49 +44,46 @@ const Dungeon = ({users, heroes, showHero}) => {
                 setBeforeDungeon(false)
             }
 
-            //Check status of game ----------
-            getStatus();
-
-            if(round.wait === 2){
-               console.log("waiting to use card after death")
-            }
-
-            else{
-                socket.on("discard", (data) =>{
-                    let equipment = round.equipment.filter(card => card !== data.card)
-    
-                    if(data.card === "card2" || data.card ==="card3"){
-                        let cardHp = heroes[showHero][data.card].hp;
-                        addToLog({msg:"Discarded " + heroes[showHero][data.card].text1 + " and lost " +cardHp +" hp", type:"discard"})
-                        setRound({...round, equipment:equipment,hp:round.hp-cardHp ,wait:0})
-                    }
-                    else{
-                        setRound({...round, equipment:equipment, wait:0})
-                    }
-                });
+            //Check status of game (Win, lose, use special card)
+            getStatus()
             
-                socket.on("use equipment", data =>{
-                    triggerEquipment(data.action, data.discard, data.extra ,data.card);
-                })
-    
-                socket.on("attack me", ()=>{
-                    monsterAttackMe();
-                })
+            // sockets needed for one player
+            socket.on("discard", (data) =>{
+                let equipment = round.equipment.filter(card => card !== data.card)
 
-                socket.on("reveal monster", ()=>{
-                    setRound({...round,wait:1})
-                })
+                if(data.card === "card2" || data.card ==="card3"){
+                    let cardHp = heroes[showHero][data.card].hp;
+                    addToLog({msg:"Discarded " + heroes[showHero][data.card].text1 + " and lost " +cardHp +" hp", type:"discard"})
+                    setRound({...round, equipment:equipment,hp:round.hp-cardHp ,wait:0})
+                }
+                else{
+                    setRound({...round, equipment:equipment, wait:0})
+                }
+            });
+        
+            socket.on("use equipment", data =>{
+                triggerEquipment(data.action, data.discard, data.extra ,data.card);
+            })
 
-                socket.on("choose monster", ({monster, card}) =>{
-                    addToLog({msg:"With card " + heroes[showHero][card].text1 + " player has chosen to kill "+ monster +"(s)", type:"mystery"})
-                    setRound({...round, choose:monster, wait:0})
-                })
+            socket.on("attack me", ()=>{
+                monsterAttackMe();
+            })
 
-            }
+            socket.on("reveal monster", ()=>{
+                setRound({...round,wait:1})
+            })
+
+            socket.on("choose monster", ({monster, card}) =>{
+                addToLog({msg:"With card " + heroes[showHero][card].text1 + " player has chosen to kill "+ monster +"(s)", type:"mystery"})
+                setRound({...round, choose:monster, wait:0})
+            })
+
+            
             
         }
 
         else{
+            // sockets needed for more player
             socket.on("add monster", ()=>{
                 addToLog({msg:users[round.turn].name + " placed monster in dungeon", type:"addMonster"})
 
@@ -163,6 +150,7 @@ const Dungeon = ({users, heroes, showHero}) => {
             });
         }
         
+        // closes sockets as component re-renders
         return () => {
             socket.emit("disconnect")
             socket.off();
@@ -173,18 +161,18 @@ const Dungeon = ({users, heroes, showHero}) => {
     function getStatus(){
         //  if hero died
         if(round.hp <1){
-            addToLog({msg:"Your hero died", type:"mystery"})
             let cardsAfterDeath = cardsWhenDead()
             // cards after death
+            console.log(cardsAfterDeath)
             if(cardsAfterDeath.length !== 0 && round.wait !== 2){
                 for(let card of cardsAfterDeath){
-                    addToLog({msg: "Card left to use " + heroes[showHero][card].text1, type:"mystery"})
+                    addToLog({msg: "Hero died but you can still use " + heroes[showHero][card].text1, type:"mystery"})
                 }
                 setRound({...round, wait:2})
             }
             // lost
-            else{
-                addToLog({msg:users[round.turn].name + " has lost", type:"giveUp"})
+            else if(round.wait !== 2 ){
+                addToLog({msg:users[round.turn].name + " has lost this round", type:"giveUp"})
                 users[round.turn].lives -= 1
                 resetRound()
             }
@@ -276,7 +264,6 @@ const Dungeon = ({users, heroes, showHero}) => {
 
         else if(action==="resurrect"){
             addToLog({msg:"Resurrecting hero with " + heroes[showHero][card].text1, type:"win"})
-            console.log(heroes[showHero].card1.hp)
             let equipment = [...round.equipment];
             equipment = equipment.filter(item => item !== card)
             setRound({...round, hp:heroes[showHero].card1.hp, equipment:equipment, wait:0})
@@ -348,7 +335,22 @@ const Dungeon = ({users, heroes, showHero}) => {
             setRound({...round, hp:round.hp - monster.strength, inDungeon:inDungeon, currentMonster:-1, wait:0})        
         }
     }
+    
+    // function keyTrigger({key}){
+    //     if(key === "t"){
 
+    //     }
+    // }
+    
+    // add event listeners on keyUp
+    // useEffect(()=> {
+    //     window.addEventListener("keyup", keyTrigger)
+        
+    //     return ()=>{
+    //         window.removeEventListener('keyup', keyTrigger);
+    //     }
+    // },[])    
+        
     return (
         <div className="dungeon">
             {users && round && (users.length - round.givenUp.length !== 1) ? 
@@ -380,6 +382,7 @@ const Dungeon = ({users, heroes, showHero}) => {
                             className={(users[round.turn].name === name && round.currentMonster === -1) ? "choice" : "disabled"} 
                             disabled={users[round.turn].name !== name || round.currentMonster !== -1} 
                             onClick={()=> takeMonsterCard()}> Take a monster card
+                            
                         </button>
                         <button 
                             className={(users[round.turn].name === name && round.currentMonster === -1) ? "choice" : "disabled"} 
