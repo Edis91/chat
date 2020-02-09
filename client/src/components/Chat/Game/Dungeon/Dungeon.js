@@ -6,12 +6,13 @@ import { GlobalContext } from '../../../GlobalContext';
 const {monsters} = require("../AllMonsters")
 
 const Dungeon = ({users, heroes, showHero}) => {
-    const {socket, room, round, setRound, name, start, setStart ,addToLog} = useContext(GlobalContext);
+    const {socket, room, round, setRound, start, setStart ,addToLog} = useContext(GlobalContext);
 
     const [beforeDungeon, setBeforeDungeon] = useState(true);
+
+    const [reducedDamage, setReducedDamage] = useState(0)
     
     useEffect(()=>{
-        
         // When only one player left this round, enter dungeon
         
         if(users.length - round.givenUp.length === 1){
@@ -22,21 +23,43 @@ const Dungeon = ({users, heroes, showHero}) => {
                 let specialCard = "";
 
                 // heroes with any condition required before entering dungeon
-                let heroSpecialCondition = ["Warrior", "Rogue"] 
+                let heroSpecialCondition = ["Warrior", "Rogue", "Bard"] 
                 for(let name of heroSpecialCondition){
                     if(heroName === name){
                         // see if any card in equipment that makes us choose before entering dungeon
                         for(let card of round.equipment){
-                            if(heroes[showHero][card].conditions && heroes[showHero][card].conditions[0] === "kill-choose"){
-                                specialCard = card;
-                                break;
+                            if(heroes[showHero][card].conditions){
+                                // first condition
+                                let condition = heroes[showHero][card].conditions[0]
+                                if(condition === "kill-choose"){
+                                    specialCard = card;
+                                    break;
+                                }
+                                else if(condition === "reduce-damage"){
+                                    specialCard = card;
+                                    break;
+                                }   
                             }
                         }
                     }
                 }
                 
                 if(specialCard){
-                    setRound({...round, inDungeonStart:round.inDungeon, wait:-1, choose:specialCard})
+                    let cardCondition1 = heroes[showHero][specialCard].conditions[0]
+                    let cardCondition2 = heroes[showHero][specialCard].conditions[1]
+                    
+                    // if choise before entering dungeon
+                    if(cardCondition1 === "kill-choose"){
+                        setRound({...round, inDungeonStart:round.inDungeon, wait:-1, choose:specialCard})
+                    }
+                    
+                    // if we have card that reduces damage
+                    else if(cardCondition1 === "reduce-damage"){
+                        if(cardCondition2 === "elvish-harp"){
+                            setRound({...round, inDungeonStart:round.inDungeon, choose:"elvish-harp"})
+                        }
+                    }
+
                 }
                 else{
                     setRound({...round, inDungeonStart:round.inDungeon})
@@ -44,7 +67,7 @@ const Dungeon = ({users, heroes, showHero}) => {
                 setBeforeDungeon(false)
             }
 
-            //Check status of game (Win, lose, use special card)
+            //Check status of game (Win, lose, use special card, discard)
             getStatus()
             
             // sockets needed for one player
@@ -62,7 +85,7 @@ const Dungeon = ({users, heroes, showHero}) => {
             });
         
             socket.on("use equipment", data =>{
-                triggerEquipment(data.action, data.discard, data.extra ,data.card);
+                triggerEquipment(data.action, data.discard, data.extra, data.extra2 ,data.card);
             })
 
             socket.on("attack me", ()=>{
@@ -127,7 +150,7 @@ const Dungeon = ({users, heroes, showHero}) => {
             });
     
             socket.on("set monster", (monst) =>{
-                setRound({...round, currentMonster:monst})
+                setRound({...round, currentMonster:monst, wait:1})
             });
 
             socket.on("discard", (data) =>{
@@ -159,11 +182,22 @@ const Dungeon = ({users, heroes, showHero}) => {
     },[round, start])
 
     function getStatus(){
+        // if card might have effect on next turn
+        if(round.choose === "keepIfEven" && round.wait === 1){
+            // if next monster not even, discard card 
+            if(round.currentMonster.strength %2 === 1){
+                
+                let equipment = [...round.equipment];
+                equipment = equipment.filter(item => item !== round.card)
+                addToLog({msg:"Monster's strength is odd, " + heroes[showHero][round.card].text1 + " is discarded"})
+                setRound({...round, choose:"", card:"", equipment:equipment})
+            }
+        }
+
         //  if hero died
         if(round.hp <1){
             let cardsAfterDeath = cardsWhenDead()
             // cards after death
-            console.log(cardsAfterDeath)
             if(cardsAfterDeath.length !== 0 && round.wait !== 2){
                 for(let card of cardsAfterDeath){
                     addToLog({msg: "Hero died but you can still use " + heroes[showHero][card].text1, type:"mystery"})
@@ -179,7 +213,7 @@ const Dungeon = ({users, heroes, showHero}) => {
         }
 
         // win
-        else if(round.inDungeon.length === 0 && round.hp>0){
+        else if((round.inDungeon.length === 0 && round.hp>0) || round.wait === 9){
             addToLog({msg:users[round.turn].name + " has won", type:"win"})
             users[round.turn].wins += 1
             resetRound();
@@ -190,6 +224,7 @@ const Dungeon = ({users, heroes, showHero}) => {
     function resetRound(){
         setBeforeDungeon(true)  // resets first check when entering dungeon
         setStart(false)         // lets us choose hero again
+        setReducedDamage(0)
         setRound({              // reset round with new player starting
             turn:round.turn, left:monsters, inDungeon:[], inDungeonStart:[], currentMonster:-1 , givenUp:[],         
             hp:0, equipment:["card1","card2","card3","card4","card5","card6","card7"], wait:0, choose:""           
@@ -208,7 +243,9 @@ const Dungeon = ({users, heroes, showHero}) => {
         return cardsCanUse
     }
 
-    function triggerEquipment(action, discard, extra, card){
+    function triggerEquipment(action, discard, extra, extra2, card){
+        let cardName = heroes[showHero][card].text1
+
         if(action==="kill"){
             let data = killMonster();
 
@@ -218,60 +255,103 @@ const Dungeon = ({users, heroes, showHero}) => {
             //discarding one card ( the used card)
             if(discard==="one"){
                 
-                addToLog({msg: round.currentMonster.name + " was killed with " + heroes[showHero][card].text1,type:"kill"})
+                addToLog({msg: round.currentMonster.name + " was killed with " + cardName ,type:"kill"})
                 setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, equipment:equipment, wait:0})
             }
             //discarding two cards
             else if(discard==="two"){
-                console.log("4")
-                addToLog({msg: round.currentMonster.name + " was killed with " + heroes[showHero][card].text1+ ". Player has to discard one more card",type:"kill"})
+                addToLog({msg: round.currentMonster.name + " was killed with " + cardName+ ". Player has to discard one more card",type:"kill"})
                 setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, equipment:equipment, wait:-2})
             }
 
             //discarding next turn
             else if(discard==="next"){
-
+                addToLog({msg: round.currentMonster.name + " was killed with " + cardName + ". Next monster can also be killed with this effect", type:"kill"})
+                setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, wait:0, choose:"killNext"})
+                
             }
 
             //don't discard
             else if(discard === "never"){
-                console.log("1")
                 if(extra && extra==="add"){
-                    addToLog({msg:"killed " + round.currentMonster.name + " with " + heroes[showHero][card].text1 + " and increased hp with " + round.currentMonster.strength,type:"kill"})
+                    addToLog({msg:"killed " + round.currentMonster.name + " with " + cardName + " and increased hp with " + round.currentMonster.strength,type:"kill"})
                     setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, hp:round.hp + round.currentMonster.strength, wait:0})
                 }
                 else if(extra && extra==="choose now"){
                     if(round.choose==="" || round.choose===round.currentMonster.name){
-                        console.log("2")
                         if(round.choose===""){
-                            console.log("3")
-                            addToLog({msg:"killed " + round.currentMonster.name + " with " + heroes[showHero][card].text1 +" and can be used again for same monster", type:"kill"})
+                            addToLog({msg:"killed " + round.currentMonster.name + " with " + cardName +" and can be used again for same monster", type:"kill"})
                             setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, wait:0, choose:round.currentMonster.name})
                         }
                         else{
-                            console.log("4")
-                            addToLog({msg:"killed " + round.currentMonster.name + " with " + heroes[showHero][card].text1 +" and can be used again for same monster", type:"kill"})
+                            addToLog({msg:"killed " + round.currentMonster.name + " with " + cardName +" and can be used again for same monster", type:"kill"})
                             setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, wait:0})
                         }    
                     }
                 }
-                else{
-                    addToLog({msg:"killed " + round.currentMonster.name + " with " + heroes[showHero][card].text1, type:"kill"})
+
+                else if(extra && extra==="reduce"){
+                    addToLog({msg:"Killed a " + round.currentMonster.name + " with " + cardName + " and reduced incoming damage by " + extra2, type:"mystery"})
+                    setReducedDamage(reducedDamage + extra2)
                     setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, wait:0})
+                }
+
+                else{
+                    addToLog({msg:"killed " + round.currentMonster.name + " with " + cardName, type:"kill"})
+                    setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, wait:0})
+                }
+            }
+
+            else if(discard==="maybe"){
+                if(extra === "even"){
+                    addToLog({msg:"killed " + round.currentMonster.name + " with " + cardName, type:"kill"})
+                    setRound({...round, inDungeon:data.inDungeon, currentMonster:data.nextMonster, wait:0, choose:"keepIfEven", card:card})
                 }
             }
         }
 
         else if(action==="resurrect"){
-            addToLog({msg:"Resurrecting hero with " + heroes[showHero][card].text1, type:"win"})
+            addToLog({msg:"Resurrecting hero with " + cardName, type:"win"})
             let equipment = [...round.equipment];
             equipment = equipment.filter(item => item !== card)
             setRound({...round, hp:heroes[showHero].card1.hp, equipment:equipment, wait:0})
         }
 
-        else if(action==="choose"){
+        else if(action==="unique-monsters"){
+            let win = duplicateInArray(round.inDungeonStart)
 
+            if(win){
+                setRound({...round, wait:9})
+            }
         }
+
+        else if(action === "switch"){
+            // receiving monster index with extra
+            let monst = round.left[extra]
+            addToLog({msg:"used " + cardName + " and replaced " + round.currentMonster.name + " with "+ monst.name, type:"win"})
+
+            let inDungeon2 = [...round.inDungeon]
+            let index = inDungeon2.length-1
+            inDungeon2[index] = monst;
+
+            let inDungeonStart2 = [...round.inDungeonStart]
+            inDungeonStart2[index] = monst
+
+            setRound({...round, currentMonster:monst, inDungeon: inDungeon2, inDungeonStart: inDungeonStart2})
+        }
+    }
+
+    function duplicateInArray(array){
+        let valuesSoFar = [];
+        for(let i=0; i < array.length; i++){
+            let value = array[i].name;
+            console.log(value)
+            if(valuesSoFar.indexOf(value) !== -1){
+                return false
+            }
+            valuesSoFar.push(value)
+        }
+        return true
     }
 
     function killMonster(){
@@ -287,19 +367,7 @@ const Dungeon = ({users, heroes, showHero}) => {
         return {inDungeon:inDungeon, nextMonster:nextMonster}        
     }
 
-    function takeMonsterCard(){
-        const monsterIndex = Math.floor(Math.random()*round.left.length)
-        let monst = round.left[monsterIndex]
-        socket.emit("set monster", {room, monst})
-    }
-
-    function addToDungeon(){
-        socket.emit("add monster", room);
-    }
-
-    function giveUpRound(){
-        socket.emit("give up", room)
-    }
+    
 
     function findNextPlayer(){
         let nextPlayer = round.turn +1;
@@ -321,36 +389,118 @@ const Dungeon = ({users, heroes, showHero}) => {
     }
 
     function monsterAttackMe(){
-        addToLog({msg:"Player takes a hit and loses " + round.currentMonster.strength + " hp", type:"attackMe"})     
         // set next monster
         let inDungeon = [...round.inDungeon]
         let monster = inDungeon.pop();
+        
+        let monsterDamage = monster.strength;
 
+        if(round.choose === "elvish-harp" && round.hp < 5){
+            if(monster.strength %2 === 0){
+                monsterDamage = 2
+            }
+            else {
+                monsterDamage = 1
+            }
+        }
+        
+        let damageTaken = monsterDamage - reducedDamage;
+        if(damageTaken<0){
+            damageTaken=0;
+        }
+
+        addToLog({msg:"Player takes a hit and loses " + damageTaken + " hp", type:"attackMe"})
+        
         // if next monster exists
         if(inDungeon[inDungeon.length-1]){
             let nextMonster = inDungeon[inDungeon.length-1]
-            setRound({...round, hp:round.hp - monster.strength, inDungeon:inDungeon, currentMonster:nextMonster, wait:0})   
+            setRound({...round, hp:round.hp - damageTaken, inDungeon:inDungeon, currentMonster:nextMonster, wait:0})   
         }
         else{
-            setRound({...round, hp:round.hp - monster.strength, inDungeon:inDungeon, currentMonster:-1, wait:0})        
+            setRound({...round, hp:round.hp - damageTaken, inDungeon:inDungeon, currentMonster:-1, wait:0})        
         }
     }
     
-    // function keyTrigger({key}){
-    //     if(key === "t"){
 
-    //     }
-    // }
     
-    // add event listeners on keyUp
-    // useEffect(()=> {
-    //     window.addEventListener("keyup", keyTrigger)
+    // event listeners for the current player 
+    useEffect(()=> {
+        let amount = users.length - round.givenUp.length;
+
+        if(users[round.turn].id === socket.id){
+            function keyTrigger({key}){
+                if(amount > 1){
+                    if(round.wait === 0){
+                        if(key === "t"){ takeMonsterCard()}
+                        else if(key === "g"){giveUpRound()}
+                    }
+                    else if(round.wait === 1){
+                        if(key === "a"){addToDungeon()}
+                        // discard equipment here
+                        else if(key === "1"){console.log("discard card 2")}
+                        else if(key === "2"){console.log("discard card 3")}
+                        else if(key === "3"){console.log("discard card 4")}
+                        else if(key === "4"){console.log("discard card 5")}
+                        else if(key === "5"){console.log("discard card 6")}
+                        else if(key === "6"){console.log("discard card 7")}
+                    }
+                }
+
+                else if(amount === 1){
+                    if(round.wait === 0){
+                        if(key === "d"){revealMonster()}
+                    }
+                    else if(round.wait === 1){
+                        if(key === "s"){attackMe()}
+                        else if(key === "1"){console.log("use card 2")}
+                        else if(key === "2"){console.log("use card 3")}
+                        else if(key === "3"){console.log("use card 4")}
+                        else if(key === "4"){console.log("use card 5")}
+                        else if(key === "5"){console.log("use card 6")}
+                        else if(key === "6"){console.log("use card 7")}
+
+                    }
+                }
+
+            }
+            
+            window.addEventListener("keyup", keyTrigger)
+            return ()=>{ window.removeEventListener('keyup', keyTrigger) }
+        }
         
-    //     return ()=>{
-    //         window.removeEventListener('keyup', keyTrigger);
-    //     }
-    // },[])    
+        // event listeners for other players 
+        else {
+
+        }
+
         
+
+    },[round]) 
+
+    // socket emits
+    
+    function takeMonsterCard(){
+        const monsterIndex = Math.floor(Math.random()*round.left.length)
+        let monst = round.left[monsterIndex]
+        socket.emit("set monster", {room, monst})
+    }
+
+    function addToDungeon(){
+        socket.emit("add monster", room);
+    }
+
+    function giveUpRound(){
+        socket.emit("give up", room)
+    }
+
+    function attackMe(){
+        socket.emit("attack me", room)
+    }
+
+    function revealMonster(){
+        socket.emit("reveal monster", room)
+    }
+
     return (
         <div className="dungeon">
             {users && round && (users.length - round.givenUp.length !== 1) ? 
@@ -379,19 +529,19 @@ const Dungeon = ({users, heroes, showHero}) => {
                     <div className="dungeonButtons">
                     
                         <button 
-                            className={(users[round.turn].name === name && round.currentMonster === -1) ? "choice" : "disabled"} 
-                            disabled={users[round.turn].name !== name || round.currentMonster !== -1} 
-                            onClick={()=> takeMonsterCard()}> Take a monster card
+                            className={(users[round.turn].id === socket.id && round.currentMonster === -1) ? "choice" : "disabled"} 
+                            disabled={users[round.turn].id !== socket.id || round.currentMonster !== -1} 
+                            onClick={()=> takeMonsterCard()}> Take monster card <span className="key1">(T)</span>
                             
                         </button>
                         <button 
-                            className={(users[round.turn].name === name && round.currentMonster === -1) ? "choice" : "disabled"} 
-                            disabled={users[round.turn].name !== name || round.currentMonster !== -1} 
-                            onClick={()=> giveUpRound()}> Give up round</button>
+                            className={(users[round.turn].id === socket.id && round.currentMonster === -1) ? "choice" : "disabled"} 
+                            disabled={users[round.turn].id !== socket.id || round.currentMonster !== -1} 
+                            onClick={()=> giveUpRound()}> Give up round <span className="key2">(G)</span></button>
                         <button 
-                            className={(users[round.turn].name === name && round.currentMonster !== -1) ? "choice" : "disabled"} 
-                            disabled={users[round.turn].name !== name  || round.currentMonster === -1}
-                            onClick={()=> addToDungeon()}> add monster to Dungeon 
+                            className={(users[round.turn].id === socket.id && round.currentMonster !== -1) ? "choice" : "disabled"} 
+                            disabled={users[round.turn].id !== socket.id  || round.currentMonster === -1}
+                            onClick={()=> addToDungeon()}> Add to dungeon <span className="key1">(A)</span>
                         </button>
                     </div>
                 </>
@@ -408,11 +558,11 @@ const Dungeon = ({users, heroes, showHero}) => {
                             </div>
                             :
                             <button 
-                                onClick={()=> socket.emit("reveal monster", room)}
+                                onClick={()=> revealMonster()}
                                 disabled={round.wait !== 0 || users[round.turn].id !== socket.id}
                                 className={round.wait !== 0 ? "disabled":"choice"}
                             > 
-                                Draw next monster 
+                                Draw next monster <span className="key1">(D)</span>
                             </button>
                         }
                     
@@ -421,9 +571,9 @@ const Dungeon = ({users, heroes, showHero}) => {
                     <div className="dungeonButtons">
                         <button 
                             className={(round.currentMonster !== -1 && round.wait===1) ? "choice" : "disabled"}
-                            onClick={()=> socket.emit("attack me", room)}
+                            onClick={()=> attackMe()}
                             disabled={users[round.turn].id !== socket.id || round.wait !==1}
-                            > Take a hit
+                            > Take a hit of ({round.currentMonster.strength - reducedDamage}) <span className="key1">(S)</span>
                         </button>
                     </div>                   
                 </>

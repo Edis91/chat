@@ -12,8 +12,8 @@ const bard = {
     card1: {src:'./icons/bard/card1.png',text1: "Bard", text2:"HP 3", hp:3},
     card2: {src:'./icons/bard/card2.png',text1: "Glamorous Tunic", text2:"HP 5", hp:5},
     card3: {src:'./icons/bard/card3.png',text1: "Fancy hat", text2:"HP 2", hp:2},
-    card4: {src:'./icons/bard/card4.png',text1: "Lucky Coin", text2:"Defeat an even-strength Monster. If the next Monster is even, repeat the process", conditions:["kill-discard", "repeat", "even"]},
-    card5: {src:'./icons/bard/card5.png',text1: "Elvish Harp", text2:"If your Hp is less than 5, odd-strength Monsters deal 1 damage and even-strength Monsters deal 2", conditions:["reduce-damage", "Goblin"]},
+    card4: {src:'./icons/bard/card4.png',text1: "Lucky Coin", text2:"Defeat an even-strength Monster. If the next Monster is even, repeat the process", conditions:["kill-discard-maybe", "repeat", "even"]},
+    card5: {src:'./icons/bard/card5.png',text1: "Elvish Harp", text2:"If your Hp is less than 5, odd-strength Monsters deal 1 damage and even-strength Monsters deal 2", conditions:["reduce-damage", "elvish-harp"]},
     card6: {src:'./icons/bard/card6.png',text1: "Charming Flute", text2:"Defeat Goblins. For each defeated this way, reduce all damage by 1", conditions:["kill-keep", "reduce" ,"Goblin", 1]},
     card7: {src:'./icons/bard/card7.png',text1: "Dancing blade", text2:"Defeat one odd-strength Monster", conditions:["kill-discard","odd"]},
 }
@@ -33,7 +33,7 @@ const mage = {
     card2: {src:'./icons/mage/card2.png',text1: "Wall of Fire", text2:"HP 6", hp:6},
     card3: {src:'./icons/mage/card3.png',text1: "Bracelet of Protection", text2:"HP 3", hp:3},
     card4: {src:'./icons/mage/card4.png',text1: "Holy Grail", text2:"Defeat Monsters with even-numbered strength", conditions:["kill-keep", "even"]},
-    card5: {src:'./icons/mage/card5.png',text1: "Polymorph", text2:"Defeat one Monster you draw, replacing it with the next Monster from the deck (once per Dungeon)", conditions:["switch-monster", "Goblin"]},
+    card5: {src:'./icons/mage/card5.png',text1: "Polymorph", text2:"Defeat one Monster you draw, replacing it with the next Monster from the deck (once per Dungeon)", conditions:["switch-monster"]},
     card6: {src:'./icons/mage/card6.png',text1: "Demonic Pact", text2:"Defeat the Demon and the next Monster", conditions:["kill-discard","Demon","next"]},
     card7: {src:'./icons/mage/card7.png',text1: "Omnipotence", text2:"If all the Monsters in the Dungeon are different, you win the round", conditions:["after-death","unique-monsters"]},
 }

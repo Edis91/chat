@@ -25,3 +25,11 @@
    );
    border-radius:10px;
 }
+
+.key1 {
+   color: rgb(28, 147, 202)
+}
+
+.key2 {
+   color: rgb(202, 83, 28)
+}

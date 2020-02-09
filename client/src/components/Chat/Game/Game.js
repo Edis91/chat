@@ -42,7 +42,7 @@ const Game = ({users}) => {
                             <p> Choose which monster to kill</p>
                             
                             {monsterNames.map(monster => {
-                                return <button className="choose" disabled={socket.id !== users[round.turn].id} key={monster} onClick={()=> socket.emit("choose monster", ({room, monster, card:round.choose}))}> {monster} </button>
+                                return <button type="button" className="choose" disabled={socket.id !== users[round.turn].id} key={monster} onClick={()=> socket.emit("choose monster", ({room, monster, card:round.choose}))}> {monster} </button>
                             })}
                         </>
 
@@ -53,7 +53,6 @@ const Game = ({users}) => {
                     
                 </div>
             }
-            <button onClick={()=> console.log(round)}> Log</button>
         </>
     ) 
 }

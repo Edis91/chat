@@ -47,6 +47,7 @@ const Logger = () => {
                     return <div key={l.id} style={{color:getStyle(l.type)}} className={log.length-1 === l.id ? "logMessage blinking" : "logMessage"}> {l.msg} </div>
                 })}
             </div>
+            <button onClick={()=> addToLog(-1)}> Reset log</button>
         </ScrollToBottom>
     )
 }

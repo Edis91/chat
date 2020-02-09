@@ -41,13 +41,16 @@ const Hero = ({users, heroes, showHero}) => {
         
         let data;
 
-        console.log("1")
-
         switch (conditions[0]){
             case "kill-discard":
-                // if we CAN see the monster
                 if(round.wait === 1){
                     data = killDiscard(conditions);
+                }
+                break;
+                
+            case "kill-discard-maybe":
+                if(round.wait === 1){
+                    data = killDiscardMaybe(conditions)
                 }
                 break;
 
@@ -57,21 +60,8 @@ const Hero = ({users, heroes, showHero}) => {
                 }
                 break;
 
-            case "reduce-damage":
-                if(round.wait === 1){
-                    data = reduceDamage(conditions);
-                }
-                break;
-
-            case "change-deck":
-                if(round.wait === 1){
-                    data = changeDeck(conditions);
-                }
-                break;
-     
             case "after-death":
                 if(round.wait === 2){
-                    console.log("2")
                     data = afterDeath(conditions);
                 }
                 break;
@@ -80,6 +70,13 @@ const Hero = ({users, heroes, showHero}) => {
                 if(round.wait === 1){
                     data = killChoose(conditions)
                 }
+                break;
+
+            case "switch-monster":
+                if(round.wait === 1){
+                    data = switchMonster()
+                }
+                break;
                         
             default:
                 console.log("Condition does not exist")
@@ -87,32 +84,32 @@ const Hero = ({users, heroes, showHero}) => {
             }   
             if(data){
                 data.card = card;
-                console.log("4")
                 socket.emit("use equipment", {room, data})
             }
     }
 
     function killDiscard(conditions){
         let x = conditions[1];
+
+        // next monster can be killed due to card used on previous monster
+        if(round.choose === "killNext"){
+            return {action:"kill", discard:"one"}
+        }
         
         // name is the same
-        if(x === round.currentMonster.name){
+        else if(x === round.currentMonster.name){
             // kill one more 
             if(conditions[2] && conditions[2]==="next"){
-                console.log("You killed a " + conditions[1])
-                console.log("You can kill next monster also")
                 return {action:"kill", discard:"next"}
             }
             // only kill one
             else{
-                console.log("You killed a " + conditions[1])
                 return {action:"kill", discard:"one"}
             }
         }
 
         // monsters strength is odd
         else if(x === "odd" && round.currentMonster.strength % 2 === 1){
-            console.log("Killing monster with odd strength")
             return {action:"kill", discard:"one"}
         }
 
@@ -120,7 +117,6 @@ const Hero = ({users, heroes, showHero}) => {
         else if(x === "any"){
             //discard extra card
             if(conditions[2]==="discard"){
-                console.log("2")
                 return {action:"kill", discard:"two"}
             }
             else{
@@ -128,21 +124,23 @@ const Hero = ({users, heroes, showHero}) => {
             }
         }
 
-        else if(x==="repeat"){
+    } 
+
+    function killDiscardMaybe(conditions){
+        let x = conditions[1];
+
+        if(x==="repeat"){
             if(conditions[2] === "even" && round.currentMonster.strength %2 === 0){
-                console.log("monsters strength is even and can be killed, repeat until next monsters strength is odd")
-                return {action:"kill", discard:"maybe"}
+                return {action:"kill", discard:"maybe", extra:"even"}
             }
         }
-
-    } 
+    }
     // action (what card does)                  1.kill, 2.resurrect  3.choose
     // discard (when it should be discarded)    1. one , 2. two 3. next turn, 4: never , 5:maybe
     // extra (anything more that applies)       1.next(also kills next monster) 2. repeat (repeat killing with same condition, then discard
     
 
     function killKeep(conditions){
-        console.log("killKeep")
         let x = conditions[1]
         
         if(x === round.currentMonster.name){
@@ -175,38 +173,24 @@ const Hero = ({users, heroes, showHero}) => {
             }
         }
 
-        else if(x==="add" && round.currentMonster.strength < conditions[2]){
-            console.log("Monsters strength less than " + conditions[2] + " and hp was added")
-            // return {action:"kill", discard:"never"}
-        }
-
         else if(x==="reduce" && round.currentMonster.name === conditions[2]){
-            console.log("Killed a " + conditions[2] + " and reduced incoming damage by " + conditions[3])
-            // return {action:"kill", discard:"never"}
+            return {action:"kill", discard:"never", extra:"reduce", extra2:1}
         }
 
-    }
-
-
-    function reduceDamage(conditions){
-        let x = conditions[1]
-        console.log(x)    
     }
 
     function changeDeck(conditions){
         let x = conditions[1]
-        console.log(x)    
     }
 
     function afterDeath(conditions){
         let x = conditions[1]
         if(x==="resurrect"){
-            console.log("3")
             return {action:"resurrect", discard:"one"}
         }
 
         else if(x==="unique-monsters"){
-
+            return {action:"unique-monsters", discard:"one"}
         }
          
     }
@@ -221,6 +205,11 @@ const Hero = ({users, heroes, showHero}) => {
         else if(round.currentMonster.name === round.choose){
             return {action:"kill", discard:"never"}
         }
+    }
+
+    function switchMonster(){
+        const monsterIndex = Math.floor(Math.random()*round.left.length)
+        return {action:"switch", discard:"one", extra:monsterIndex}
     }
 
     function trigger(card){

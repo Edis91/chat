@@ -1,7 +1,10 @@
 import React, {useState, createContext} from 'react';
 
 import io from 'socket.io-client';
-const ENDPOINT = "localhost:5000";
+
+// const ENDPOINT = "localhost:5000";
+const ENDPOINT = "https://edis-chat-backend.herokuapp.com/"
+
 let socket = io(ENDPOINT);
 
 export const GlobalContext = createContext();
@@ -25,7 +28,8 @@ export const Global = props => {
         hp:0,
         equipment:["card1","card2","card3","card4","card5","card6","card7"],
         wait:0,    
-        choose:""           // special card or monster that can be killed by special card
+        choose:"",           // special card or monster that can be killed by special card
+        card:""              // card that might be needed for next turn (maybe discarded)
     });
 
     // wait:  
@@ -37,6 +41,7 @@ export const Global = props => {
     // 0 : waiting to draw monster card (not showing monster)
     // 1 : monstercard drawn (show the monster) 
     // 2 : waiting to use after death => 0
+    // 9 : user won, resetting next render
 
     // used for starting new round
     const [start, setStart] = useState(false);
@@ -45,8 +50,13 @@ export const Global = props => {
     const [log, setLog] = useState([])
 
     function addToLog (add){
-        if(add.delete){
+        if(add === -1){
             setLog([])
+            setRound({...round})
+        }
+        else if(add.delete){
+            setLog([])
+            setRound({...round})
         }
         else{
             add.id =log.length
@@ -61,7 +71,7 @@ export const Global = props => {
     return (
         <GlobalContext.Provider 
         value={{
-            socket,name, setName, room, setRoom,
+            ENDPOINT, socket, name, setName, room, setRoom,
             startGame, round, setRound, start, setStart, monsters,
             log,setLog, addToLog
         }}>

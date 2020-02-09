@@ -109,7 +109,7 @@ io.on("connection", (socket)=>{
     socket.on("choose monster", ({room, monster, card})=>{
         io.to(room).emit("choose monster", ({monster, card}))
     })
- 
+
     socket.on("disconnect", ()=>{
         const user = removeUser(socket.id);
         if(user){
@@ -128,12 +128,3 @@ io.on("connection", (socket)=>{
 })
 
 server.listen(PORT, ()=> console.log(`Server has started on port ${PORT}`))
-
-//What to do 
-// If no monsters left, next player  "gives up", and so on, until 1 player left, he enters dungeon
-// 
-
-// 
-// Enter dungeon functionality 
-// When dungeon is over, check if there is a winner (lives left or number of wins)
-// If no one won, start new round, etc
