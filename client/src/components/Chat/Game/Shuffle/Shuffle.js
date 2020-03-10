@@ -61,8 +61,8 @@ const Shuffle = ({users, setShowHero, showHero, max, start, heroes}) => {
     return (
         <div className="shuffle">
             <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2 || users[round.turn].id !== socket.id} onClick={()=> socket.emit("choose hero", {room, action:"prev"})}>  previous hero </button>
-            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2 || users[round.turn].id !== socket.id} onClick={()=> socket.emit("start round", room) }> Choose hero </button>
             <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2 || users[round.turn].id !== socket.id} onClick={()=>socket.emit("choose hero", {room, action:"next"})}> Next hero</button>
+            <button className={start ? "hideButton" : "showButton"} disabled={users.length < 2 || users[round.turn].id !== socket.id} onClick={()=> socket.emit("start round", room) }> Choose hero </button>
         </div>
     )
 }

@@ -7,8 +7,8 @@ const RoundInfo = () => {
 
     return (
         <div className="roundInfo">
-            <h4> Monsters in Dungeon: {round.inDungeon.length} </h4>
-            <h4> HP : {round.hp} </h4>
+            <p> Monsters: {round.inDungeon.length} </p>
+            <p> HP : {round.hp} </p>
         </div>
     )
 }

@@ -557,13 +557,13 @@ const Dungeon = ({users, heroes, showHero}) => {
                                 <p> strength: {round.currentMonster.strength} </p>
                             </div>
                             :
-                            <button 
+                            <div 
                                 onClick={()=> revealMonster()}
                                 disabled={round.wait !== 0 || users[round.turn].id !== socket.id}
-                                className={round.wait !== 0 ? "disabled":"choice"}
+                                className={round.wait !== 0 ? "draw disabled":"draw choice"}
                             > 
                                 Draw next monster <span className="key1">(D)</span>
-                            </button>
+                            </div>
                         }
                     
                     </div>
@@ -573,7 +573,7 @@ const Dungeon = ({users, heroes, showHero}) => {
                             className={(round.currentMonster !== -1 && round.wait===1) ? "choice" : "disabled"}
                             onClick={()=> attackMe()}
                             disabled={users[round.turn].id !== socket.id || round.wait !==1}
-                            > Take a hit of ({round.currentMonster.strength - reducedDamage}) <span className="key1">(S)</span>
+                            > Take a hit <span className="key1">(S)</span>
                         </button>
                     </div>                   
                 </>

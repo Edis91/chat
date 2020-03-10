@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
+import RoundInfo from '../RoundInfo/RoundInfo'
+import { GlobalContext } from '../../../GlobalContext';
 
 import './Hero.css';
-import { GlobalContext } from '../../../GlobalContext';
 
 const Hero = ({users, heroes, showHero}) => {
 
@@ -9,14 +10,6 @@ const Hero = ({users, heroes, showHero}) => {
 
     const equipmentClass = (card) =>{
         let equipClass = "hero-card"
-
-        if(card === "card1"){
-            equipClass += " grid-1-2"
-        }
-
-        if(card === "card2"){
-            equipClass += " grid-2-1"
-        }
 
         if(!round.equipment.includes(card)){
             equipClass += " discarded"
@@ -274,6 +267,7 @@ const Hero = ({users, heroes, showHero}) => {
                     </div>
                 )
             })}
+            <RoundInfo/>
         </div>
     )
 }

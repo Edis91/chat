@@ -24,8 +24,6 @@ app.use(express.json({limit:"10mb", extended:true}))
 app.use((req, res, callback)=> {
     res.header("Access-Control-Allow-Origin", "http://localhost:3000")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-    
-    console.log(req.body)
     //triggers .the, (results => ) in frontEnd
     callback();
 })

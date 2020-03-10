@@ -1,15 +1,16 @@
 .player {
-    border-radius: 10px;
-    margin-left: 10px;
+    border-radius: 5px;
+    margin-left: 5px;
     text-align: center;
+    font-size:3vw;
 }
 
 .playerMe{
-    background-color: lightgreen;
+    background-color: #28A745;
 }   
 
 .playerEnemy{
-    background-color: lightcoral;
+    background-color: #DC3545;
 }
 
 .blinking {

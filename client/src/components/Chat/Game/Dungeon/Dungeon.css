@@ -1,9 +1,10 @@
 .dungeonMonster{
-   background-color: rgb(190, 100, 135);
+   background-color: #FFC107;
    border-radius: 5px;
    grid-column:1;
-   margin:5px;
    text-align:center;
+   display:grid;
+   grid-template-rows:1fr 1fr
 }
 
 .dungeonButtons{
@@ -11,8 +12,6 @@
    display:grid;
    grid-template-rows: 3;
    grid-gap:5px;
-   margin-left:10px;
-   margin-right:10px;
 }
 
 .disabled {
@@ -23,13 +22,18 @@
        rgb(30,30,30) 10px,
        rgb(30,30,30) 20px
    );
-   border-radius:10px;
+   /* border-radius:10px; */
+   border:none;
 }
 
 .key1 {
-   color: rgb(28, 147, 202)
+   color: #FFC107
 }
 
 .key2 {
    color: rgb(202, 83, 28)
+}
+
+.draw{
+   grid-row:1/3
 }

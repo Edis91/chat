@@ -1,13 +1,3 @@
-.grid-1-2{
-    grid: row 1;
-    grid-column:2;
-}
-
-.grid-2-1{
-    grid: row 2;
-    grid-column:1;
-}
-
 .discarded {
     background: repeating-linear-gradient(
         45deg, 
@@ -23,14 +13,13 @@
     display:grid;
     grid-template-rows: 1fr 1fr;
     font-family: 'Kalam', cursive;
-    height:auto;
-    border-radius:4px;
+    width:100%;
 }
 
 .card-top img{
-    margin-top:10%;
-    height:auto;
-    width:auto;
+    margin-top:2%;
+    max-width:100%;
+    max-height: 100%;;
 }
 
 .card-bot{
@@ -38,6 +27,14 @@
     display:grid;
     grid-template-rows: 0px 1fr;
     align-items:center;
+}
+
+.card-name p{
+    font-size:var(--fontSize)
+}
+
+.card-text p{
+    font-size:var(--fontSize);
 }
 
 /* coloring heroes */

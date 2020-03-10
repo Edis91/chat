@@ -25,7 +25,6 @@ const Chat = ({ location}) => {
 
         setName(name);
         setRoom(room);
-        
 
         // Z - Trying to join room with a name
         socket.emit("join", {name, room}, callBack =>{

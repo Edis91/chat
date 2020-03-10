@@ -15,7 +15,7 @@ const InfoBar = () => {
             <div className="onlineIcon">
                 <img src={onlineIcon} alt="online"/>
             </div>
-            <h1 className="room-name"> {room} </h1>
+            <p className="room-name"> {room} </p>
             <a href="/"> <img src={closeIcon} alt="close" /> </a>
             
         </div>

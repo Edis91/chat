@@ -37,7 +37,7 @@ const Players = ({users}) => {
                             key={user.name} 
                             className={classNames(user)}
                         >
-                            <h2> {user.name} </h2>
+                            <p> {user.name} </p>
                             <p> Lives: {user.lives} Wins: {user.wins}</p>
                         </div>
             })}
