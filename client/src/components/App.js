@@ -8,7 +8,7 @@ import Join from './Join/Join'
 import Chat from './Chat/Chat';
 
 const App = () => (
-    <Router>
+    <Router className="app">
         <Global>
             <Route path="/" exact component={Join}/>
             <Route path="/chat" component={Chat}/>
