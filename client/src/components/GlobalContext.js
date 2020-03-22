@@ -2,8 +2,8 @@ import React, {useState, createContext} from 'react';
 
 import io from 'socket.io-client';
 
-// const ENDPOINT = "localhost:5000";
-const ENDPOINT = "https://edis-chat-backend.herokuapp.com/"
+const ENDPOINT = "localhost:5000";
+// const ENDPOINT = "https://edis-chat-backend.herokuapp.com/"
 
 let socket = io(ENDPOINT);
 

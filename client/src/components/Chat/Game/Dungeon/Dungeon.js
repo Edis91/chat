@@ -510,8 +510,8 @@ const Dungeon = ({users, heroes, showHero}) => {
                                 <>
                                     {round.currentMonster !== -1 &&
                                         <>
-                                            <img src={require(""+round.currentMonster.src)} alt=""/>
                                             <p> {round.currentMonster.name} </p>
+                                            <img src={require(""+round.currentMonster.src)} alt=""/>
                                             <p> strength: {round.currentMonster.strength} </p>
                                         </>
                                     }
@@ -552,8 +552,8 @@ const Dungeon = ({users, heroes, showHero}) => {
                     <div className="dungeonMonster">
                         {round.inDungeon.length > 0 && round.wait===1?
                             <div>
-                                <img src={require(""+round.currentMonster.src)} alt=""/>
                                 <p> {round.currentMonster.name} </p>
+                                <img src={require(""+round.currentMonster.src)} alt=""/>
                                 <p> strength: {round.currentMonster.strength} </p>
                             </div>
                             :

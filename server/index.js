@@ -1,10 +1,7 @@
 const express = require("express");
 const socketio =require("socket.io");
 const http = require("http");
-
-// Creating all tables needed
-const {createAllTables} = require("./createTables")
-createAllTables();
+const cors = require("cors")
 
 require("dotenv").config();
 
@@ -19,15 +16,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-// accept headers and cors
-app.use(express.json({limit:"10mb", extended:true}))
-app.use((req, res, callback)=> {
-    res.header("Access-Control-Allow-Origin", "http://localhost:3000")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-    //triggers .the, (results => ) in frontEnd
-    callback();
-})
-
+app.use(cors())
 app.use(router);
 
 io.on("connection", (socket)=>{
